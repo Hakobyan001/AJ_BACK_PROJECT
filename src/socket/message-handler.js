@@ -30,8 +30,23 @@ class MessageHandler {
             const user = await AuthModel.getById(ids);
             if(user.role === 'primeminister') {
                 const { id, fullname , position, picture } = await UsersModel.getById(currentUserid);
+
                 console.log({ id, fullname , position, picture });
                 client.broadcast.emit(Event.CLICK, { id, fullname, position, picture });
+
+                let timeoutId;
+
+                timeoutId = setTimeout(() => {
+                    client.broadcast.emit(Event.REFRESH, {key: 'refresh'});
+                }, 5000);
+
+                client.on(Event.CLICK, () => {
+                    clearTimeout(timeoutId);
+                    timeoutId = setTimeout(() => {
+                        client.broadcast.emit(Event.REFRESH, {key: 'refresh'});
+                    }, 5000);
+                    clearTimeout(timeoutId);
+                });                  
             }
         };
     }
